@@ -4,7 +4,7 @@ Guidance for coding agents working in this repository.
 
 ## What this is
 
-**Smart IP Blocker** (`wobqqq/nova-aegis-smart-ip-blocker`) is an add-on module of [Aegis](https://github.com/wobqqq/nova-aegis), the security suite for Laravel Nova (Laravel 12 or 13, PHP 8.2+). It counts the requests of every IP address over a one-minute window and bans an IP that exceeds the limit for a number of hours, on the `web` routes and in Nova, answering `429 Too Many Requests` with `Retry-After` and the page the administrator chose.
+**Smart IP Blocker** (`wobqqq/nova-aegis-smart-ip-blocker`) is an add-on module of [Aegis](https://github.com/wobqqq/nova-aegis), the security suite for Laravel Nova (Laravel 12 or 13, PHP 8.4+). It counts the requests of every IP address over a one-minute window and bans an IP that exceeds the limit for a number of hours, on the `web` routes and in Nova, answering `429 Too Many Requests` with `Retry-After` and the page the administrator chose.
 
 It has no page, no table and no frontend of its own: its settings are a section of **Aegis → Settings**, drawn by the core from the module's `fields()`, and its state is a line on the Aegis overview plus two checks.
 
