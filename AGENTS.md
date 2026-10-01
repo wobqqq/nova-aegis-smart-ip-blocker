@@ -37,7 +37,7 @@ The container mounts the parent directory (`..:/work`) so that the Composer `pat
 | `src/SmartIpBlocker.php` | The rate limit: exclusions, the per-minute counter, the ban, the bounded list of tracked IPs, `removeIp()`. |
 | `src/Http/Middleware/BlockExcessiveRequests.php` | Runs the count once per request and answers 429 (HTML view or JSON). |
 | `src/Rules/` | `IpOrSubnet` (one row of the excluded IPs) and `CoversCurrentIp` (the lock-out protection). |
-| `src/Support/` | `IpRange` (IP and CIDR matching on the binary form) and `Values` (typed reads of stored values). |
+| `src/Support/` | `IpRange` (IP and CIDR matching on the binary form) and `Rows` (typed reads of the rows of a stored table setting). |
 | `src/Checks/` | `CacheStoreCheck` (a cache that keeps counts between requests) and `ExcludedHeadersCheck` (spoofable exclusions). |
 | `src/Console/` | `aegis:smart-ip-blocker:remove-ip` and `aegis:smart-ip-blocker:disable`, the recovery path. |
 | `resources/lang/en/smart-ip-blocker.php` | Every label and message, under `aegis-smart-ip-blocker::smart-ip-blocker.*`. |
@@ -47,11 +47,10 @@ The container mounts the parent directory (`..:/work`) so that the Composer `pat
 
 The core and the module are separate packages that applications update independently. The module uses only the core's public contract (listed in the core's AGENTS.md):
 
-- `Aegis::module()` registers `SmartIpBlockerModule`, `Aegis::check()` the two checks, `Aegis::settings('smart-ip-blocker')` is the only way the module reads its settings (cached by the core, so a request costs no database query);
-- `Contracts\Module`, `Contracts\Check`, `Checks\CheckResult`, `Settings\Field`, `Events\SettingsSaved`;
+- `Aegis::module()` registers `SmartIpBlockerModule`, `Aegis::check()` the two checks, `Aegis::settings('smart-ip-blocker')` is the only way the module reads its settings (cached by the core, so a request costs no database query), and `Aegis::save()` the only way it writes them (the disable command);
+- `Support\Values` for the typed reads of stored values, `Contracts\Module`, `Contracts\Check`, `Checks\CheckResult`, `Settings\Field`, `Events\SettingsSaved`;
 - the core's `aegis.cache_store` config, so counts and settings share the store the administrator chose;
 - the `nova.aegis.settings` route name, only to preset the administrator's IP in the form;
-- `SettingsRepository::save()` in the disable command only, like the core's own `aegis:disable`.
 
 The `ArchitectureTest` refuses any other core class. A newer core API is used only behind `method_exists()` / `class_exists()` with a fallback, so the module keeps working on every released core of the same major.
 

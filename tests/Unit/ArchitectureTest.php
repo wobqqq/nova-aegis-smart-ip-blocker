@@ -32,7 +32,7 @@ arch('the module reaches the core through its public contract only')
         'Wobqqq\Aegis\Nova',
         'Wobqqq\Aegis\Scanners',
         Wobqqq\Aegis\Settings\AegisSetting::class,
-        'Wobqqq\Aegis\Support',
+        Wobqqq\Aegis\Settings\SettingsRepository::class,
     ]);
 
 arch('nothing opens a network connection')

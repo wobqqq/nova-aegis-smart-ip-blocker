@@ -2,7 +2,8 @@
 
 declare(strict_types=1);
 
-use Wobqqq\Aegis\Settings\SettingsRepository;
+use Illuminate\Support\Facades\DB;
+use Wobqqq\Aegis\Aegis;
 use Wobqqq\AegisSmartIpBlocker\SmartIpBlockerModule;
 use Wobqqq\AegisSmartIpBlocker\Tests\Fixtures\User;
 use Wobqqq\AegisSmartIpBlocker\Tests\TestCase;
@@ -30,10 +31,22 @@ function configureBlocker(array $values): array
 {
     app()->instance('request', Illuminate\Http\Request::create('/'));
 
-    return resolve(SettingsRepository::class)->save(
+    return Aegis::save(
         SmartIpBlockerModule::KEY,
         $values + ['enabled' => true] + resolve(SmartIpBlockerModule::class)->defaults(),
     );
+}
+
+/**
+ * Writes the stored row as a hand edit or an older release would, then saves the core's own section unchanged so that Aegis reads the rows again.
+ *
+ * @param array<string, mixed> $values
+ */
+function storeRawBlockerSettings(array $values): void
+{
+    DB::table('aegis_settings')->updateOrInsert(['section' => SmartIpBlockerModule::KEY], ['values' => json_encode($values, JSON_THROW_ON_ERROR)]);
+
+    Aegis::save('hardening', Aegis::settings('hardening'));
 }
 
 /**

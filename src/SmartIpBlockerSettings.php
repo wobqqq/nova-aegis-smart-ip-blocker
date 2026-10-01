@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Wobqqq\AegisSmartIpBlocker;
 
+use Wobqqq\Aegis\Support\Values;
 use Wobqqq\AegisSmartIpBlocker\Support\IpRange;
-use Wobqqq\AegisSmartIpBlocker\Support\Values;
+use Wobqqq\AegisSmartIpBlocker\Support\Rows;
 
 final readonly class SmartIpBlockerSettings
 {
@@ -44,8 +45,8 @@ final readonly class SmartIpBlockerSettings
         $excludedRanges = [];
         $excludedHeaders = [];
 
-        foreach (Values::rows($values, 'excluded_ips') as $row) {
-            $range = IpRange::parse(Values::text($row, 'ip'));
+        foreach (Rows::of($values, 'excluded_ips') as $row) {
+            $range = IpRange::parse(Rows::text($row, 'ip'));
 
             if (!$range instanceof IpRange) {
                 continue;
@@ -58,9 +59,9 @@ final readonly class SmartIpBlockerSettings
             }
         }
 
-        foreach (Values::rows($values, 'excluded_headers') as $row) {
-            $header = Values::text($row, 'header');
-            $value = mb_strtolower(Values::text($row, 'value'));
+        foreach (Rows::of($values, 'excluded_headers') as $row) {
+            $header = Rows::text($row, 'header');
+            $value = mb_strtolower(Rows::text($row, 'value'));
 
             if ($value !== '' && mb_strlen($value) <= 255 && preg_match(self::HEADER_PATTERN, $header) === 1) {
                 $excludedHeaders[strtolower($header)][] = $value;

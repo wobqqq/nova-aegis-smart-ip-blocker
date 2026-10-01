@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Artisan;
 use Wobqqq\Aegis\Aegis;
-use Wobqqq\Aegis\Settings\AegisSetting;
-use Wobqqq\Aegis\Settings\SettingsRepository;
 use Wobqqq\AegisSmartIpBlocker\SmartIpBlocker;
 use Wobqqq\AegisSmartIpBlocker\SmartIpBlockerModule;
 
@@ -52,8 +50,7 @@ it('turns itself off from the console and keeps the other settings', function ()
 });
 
 it('turns itself off even when the stored settings are broken', function (): void {
-    AegisSetting::query()->create(['section' => SmartIpBlockerModule::KEY, 'values' => ['enabled' => true, 'view' => 'missing::view']]);
-    resolve(SettingsRepository::class)->flush();
+    storeRawBlockerSettings(['enabled' => true, 'view' => 'missing::view']);
 
     expect(Artisan::call('aegis:smart-ip-blocker:disable'))->toBe(0)
         ->and(Artisan::output())->toContain('reset to the defaults')

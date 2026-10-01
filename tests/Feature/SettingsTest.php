@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 use Illuminate\Validation\ValidationException;
 use Wobqqq\Aegis\Aegis;
-use Wobqqq\Aegis\Settings\AegisSetting;
-use Wobqqq\Aegis\Settings\SettingsRepository;
 use Wobqqq\AegisSmartIpBlocker\SmartIpBlocker;
 use Wobqqq\AegisSmartIpBlocker\SmartIpBlockerModule;
 use Wobqqq\AegisSmartIpBlocker\SmartIpBlockerSettings;
@@ -92,7 +90,7 @@ it('keeps only the columns it knows in the stored rows', function (): void {
 });
 
 it('reads stored values the rules would refuse with safe fallbacks', function (): void {
-    AegisSetting::query()->create(['section' => SmartIpBlockerModule::KEY, 'values' => [
+    storeRawBlockerSettings([
         'enabled' => 'yes',
         'requests_per_minute' => 'many',
         'ban_hours' => 100_000,
@@ -100,8 +98,7 @@ it('reads stored values the rules would refuse with safe fallbacks', function ()
         'max_tracked_ips' => -5,
         'excluded_ips' => [['ip' => 'nope'], ['ip' => '10.0.0.0/99'], 'junk', ['ip' => '192.0.2.0/24'], ['ip' => '192.0.2.1']],
         'excluded_headers' => 'junk',
-    ]]);
-    resolve(SettingsRepository::class)->flush();
+    ]);
 
     $settings = resolve(SmartIpBlocker::class)->settings();
 

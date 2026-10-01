@@ -12,7 +12,7 @@ The module sits in front of every request of a production application. A mistake
 
 - `SmartIpBlockerModule::rules()` bounds every value: `boolean`, `integer|min|max`, `max:` lengths, `array|max:150` row counts, `IpOrSubnet` for each excluded IP, a strict `regex` for header names and view names (no `..`, no `/`), and `View::exists()` for the view.
 - The core validates against those rules, merges the defaults and drops unknown keys and columns.
-- `SmartIpBlockerSettings::fromArray()` reads the stored values again through `Support\Values` and `IpRange::parse()`: a value the rules would refuse falls back to its default or is skipped, never reaches a comparison or a view call.
+- `SmartIpBlockerSettings::fromArray()` reads the stored values again through the core's `Support\Values`, the module's `Support\Rows` and `IpRange::parse()`: a value the rules would refuse falls back to its default or is skipped, never reaches a comparison or a view call.
 - Add a test with a hand-written row for every new setting (`SettingsTest`).
 
 ## 2. Lock-out protection

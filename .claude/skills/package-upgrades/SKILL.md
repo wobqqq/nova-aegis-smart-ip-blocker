@@ -16,8 +16,8 @@ Applications update the core and this module independently with Composer. Every 
 
 ## Constraints
 
-- `laravel/nova` stays `^5.0`, `laravel/framework` `^12.0` and `wobqqq/nova-aegis` `^1.0`: whole majors. Supporting a new major is a minor release with both ranges and tests against both.
-- `dev-main` and the `path` repository serve development until the core is on Packagist; once it is, drop the path repository and keep `^1.0`.
+- `laravel/nova` stays `^5.0`, `laravel/framework` `^12.0` and `wobqqq/nova-aegis` `^1.1` (the first core with `Aegis::save()` and the public `Values`): whole majors. Supporting a new major is a minor release with both ranges and tests against both.
+- `dev-main` and the `path` repository serve development until the core is on Packagist; once it is, drop the path repository and keep `^1.1`.
 - The lock file is for development only (export-ignored); the ranges are what applications resolve.
 
 ## Stored settings
@@ -35,7 +35,7 @@ The section is one row of the core's `aegis_settings` table under the key `smart
 
 ## The core's contract
 
-- Use only what the core's AGENTS.md lists as public, plus `aegis.cache_store` and `SettingsRepository::save()` in the disable command. `ArchitectureTest` enforces it.
+- Use only what the core's AGENTS.md lists as public (`Aegis::module()`, `::check()`, `::settings()`, `::save()`, `Support\Values`, `Module`, `Check`, `CheckResult`, `Field`, `SettingsSaved`), plus `aegis.cache_store`. `ArchitectureTest` enforces it.
 - A newer core API is used behind `method_exists()` / `class_exists()` with a fallback.
 - Run this suite against the core's latest `main` before releasing.
 

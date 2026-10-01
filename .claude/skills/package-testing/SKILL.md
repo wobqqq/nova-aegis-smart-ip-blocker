@@ -21,7 +21,7 @@ license: MIT
 - Test what a visitor, an administrator or the application sees: the status code and `Retry-After`, the JSON of the core's API, the result of a check, the exit code and output of a command. Not private methods.
 - A security rule is a test: the lock-out rule, a spoofable header, an invalid setting, a hand-written stored row, a broken cache.
 - Time moves with `travel()`; the array cache and `Date::now()` follow it. Never `sleep()`.
-- A setting is saved through `configureBlocker()` or the API, never written to the table by hand, unless the test is about a stored row the rules would refuse (then flush `SettingsRepository` and `SmartIpBlocker::forget()`).
+- A setting is saved through `configureBlocker()` or the API, never written to the table by hand, unless the test is about a stored row the rules would refuse: then `storeRawBlockerSettings()` writes it and makes Aegis read it again.
 - No test reaches the network.
 - Coverage stays at 90 % or more (`make test.coverage`).
 

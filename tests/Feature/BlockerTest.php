@@ -5,10 +5,7 @@ declare(strict_types=1);
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\View;
-use Wobqqq\Aegis\Settings\AegisSetting;
-use Wobqqq\Aegis\Settings\SettingsRepository;
 use Wobqqq\AegisSmartIpBlocker\SmartIpBlocker;
-use Wobqqq\AegisSmartIpBlocker\SmartIpBlockerModule;
 
 use function Pest\Laravel\getJson;
 use function Pest\Laravel\travel;
@@ -86,9 +83,8 @@ it('shows the configured view, and its own page when that view is gone', functio
     statuses('203.0.113.7', 1);
     requestFrom('203.0.113.7')->assertStatus(429)->assertSee('Custom page, back in 3600 seconds.');
 
-    AegisSetting::query()->where('section', SmartIpBlockerModule::KEY)->update(['values' => json_encode(['view' => 'fixtures::deleted'] + Wobqqq\Aegis\Aegis::settings(SmartIpBlockerModule::KEY))]);
-    resolve(SettingsRepository::class)->flush();
-    resolve(SmartIpBlocker::class)->forget();
+    View::replaceNamespace('fixtures', [__DIR__ . '/../Fixtures/missing']);
+    View::getFinder()->flush();
 
     requestFrom('203.0.113.7')->assertStatus(429)->assertSee('Too many requests');
 });
