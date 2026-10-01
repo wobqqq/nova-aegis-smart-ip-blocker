@@ -1,0 +1,14 @@
+# The parent directory is mounted so that the "path" repository ../nova-aegis
+# resolves inside the container while the core is not on Packagist yet.
+services:
+    php:
+        build: docker/php
+        image: wobqqq/oc-php:8.4
+        user: '${UID:-1000}:${GID:-1000}'
+        working_dir: /work/${PROJECT:-nova-aegis-smart-ip-blocker}
+        volumes:
+            - ..:/work
+            - composer-cache:/tmp/composer
+
+volumes:
+    composer-cache:
