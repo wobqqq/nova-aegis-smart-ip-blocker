@@ -1,0 +1,67 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Wobqqq\AegisSmartIpBlocker\Tests;
+
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
+use Laravel\Nova\Nova;
+use Laravel\Nova\NovaCoreServiceProvider;
+use Orchestra\Testbench\TestCase as BaseTestCase;
+use Wobqqq\Aegis\AegisServiceProvider;
+use Wobqqq\Aegis\Nova\AegisTool;
+use Wobqqq\AegisSmartIpBlocker\SmartIpBlockerServiceProvider;
+use Wobqqq\AegisSmartIpBlocker\Tests\Fixtures\User;
+
+abstract class TestCase extends BaseTestCase
+{
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        Schema::create('users', static function (Blueprint $table): void {
+            $table->id();
+            $table->string('name')->default('Admin');
+            $table->string('email')->unique();
+            $table->string('password')->default('');
+            $table->boolean('is_admin')->default(false);
+            $table->timestamp('last_login_at')->nullable();
+            $table->rememberToken();
+            $table->timestamps();
+        });
+
+        Nova::$tools = [];
+        Nova::tools([new AegisTool()]);
+
+        Gate::define(AegisTool::GATE, static fn (User $user): bool => $user->is_admin);
+    }
+
+    /**
+     * @return list<class-string>
+     */
+    protected function getPackageProviders($app): array
+    {
+        return [\Inertia\ServiceProvider::class, NovaCoreServiceProvider::class, AegisServiceProvider::class, SmartIpBlockerServiceProvider::class];
+    }
+
+    protected function defineEnvironment($app): void
+    {
+        $app['config']->set('auth.providers.users.model', User::class);
+        $app['config']->set('aegis.users.model', User::class);
+        $app['config']->set('aegis.audit.schedule', false);
+    }
+
+    protected function defineRoutes($router): void
+    {
+        Route::middleware('web')->get('/page', static fn (): string => 'page body');
+        Route::middleware('web')->get('/api-page', static fn (): array => ['ok' => true]);
+    }
+
+    protected function defineDatabaseMigrations(): void
+    {
+        $this->loadMigrationsFrom(__DIR__ . '/../vendor/wobqqq/nova-aegis/database/migrations');
+    }
+}

@@ -1,0 +1,47 @@
+<?php
+
+declare(strict_types=1);
+
+use Wobqqq\Aegis\Settings\SettingsRepository;
+use Wobqqq\AegisSmartIpBlocker\SmartIpBlockerModule;
+use Wobqqq\AegisSmartIpBlocker\Tests\Fixtures\User;
+use Wobqqq\AegisSmartIpBlocker\Tests\TestCase;
+
+pest()->extend(TestCase::class)->in('Unit', 'Feature');
+
+function admin(): User
+{
+    return User::query()->create(['email' => 'admin@example.com', 'is_admin' => true, 'last_login_at' => now()]);
+}
+
+function editor(): User
+{
+    return User::query()->create(['email' => 'editor@example.com', 'is_admin' => false, 'last_login_at' => now()]);
+}
+
+/**
+ * Saves the section from the console side, where the lock-out rule does not apply.
+ *
+ * @param array<string, mixed> $values
+ *
+ * @return array<string, mixed>
+ */
+function configureBlocker(array $values): array
+{
+    app()->instance('request', Illuminate\Http\Request::create('/'));
+
+    return resolve(SettingsRepository::class)->save(
+        SmartIpBlockerModule::KEY,
+        $values + ['enabled' => true] + resolve(SmartIpBlockerModule::class)->defaults(),
+    );
+}
+
+/**
+ * @param array<string, string> $headers
+ *
+ * @return Illuminate\Testing\TestResponse<Symfony\Component\HttpFoundation\Response>
+ */
+function requestFrom(string $ip, string $uri = '/page', array $headers = []): Illuminate\Testing\TestResponse
+{
+    return Pest\Laravel\withServerVariables(['REMOTE_ADDR' => $ip])->get($uri, $headers);
+}
