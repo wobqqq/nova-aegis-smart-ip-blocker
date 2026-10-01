@@ -25,7 +25,7 @@
 - PHP 8.2 or higher
 - Laravel 12
 - Laravel Nova 5
-- [Aegis](https://github.com/wobqqq/nova-aegis) (installed with the module)
+- [Aegis](https://github.com/wobqqq/nova-aegis) 1.1 or higher (installed with the module)
 - A cache store shared by every server (Redis, Memcached, database; `file` on a single server)
 
 ## 📥 Installation
