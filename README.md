@@ -83,7 +83,7 @@ Please report a vulnerability privately, as described in [SECURITY.md](https://g
 
 ## 🛠️ Development
 
-The toolchain runs in Docker, the host needs nothing but `docker` and `make`. Until the core is on Packagist, Composer installs it from `../nova-aegis` (a `path` repository), so clone [nova-aegis](https://github.com/wobqqq/nova-aegis) next to this repository; the container mounts the parent directory for that. Nova is a licensed package, so installing the development dependencies needs your own Nova license: put its credentials in `auth.json` (gitignored) or run `composer config http-basic.nova.laravel.com <email> <license-key>`.
+The toolchain runs in Docker, the host needs nothing but `docker` and `make`. Until the core is on Packagist, Composer installs it from `../nova-aegis` (a `path` repository), so clone [nova-aegis](https://github.com/wobqqq/nova-aegis) next to this repository; the container mounts the parent directory for that. No Nova license is needed: development and CI run on a test double of Nova in `stubs/nova` (installed as `laravel/nova` from a path repository, never shipped). Applications still install the real Nova.
 
 ```bash
 make install        # composer install
@@ -91,6 +91,9 @@ make code.fix       # composer normalize, Rector, PHP CS Fixer
 make code.check     # composer validate/audit, php -l, PHP CS Fixer, Rector, PHPStan (level max)
 make test.coverage  # Pest with coverage (90 % minimum)
 make ready          # everything above
+make test.nova      # optional: the PHP suite on the real Nova
 ```
 
-GitHub Actions runs the same checks on every pull request. It checks the core out next to this repository and needs the `NOVA_USERNAME` and `NOVA_LICENSE_KEY` repository secrets; while the core repository is private, an `AEGIS_CORE_TOKEN` secret (a token that can read it) as well.
+`make test.nova` copies this repository and the core from `../nova-aegis` (or `AEGIS_CORE`) to a temporary directory, installs the real `laravel/nova` from nova.laravel.com there and runs Pest; it needs your own Nova license in `auth.json` (gitignored), and `NOVA_VERSION=5.9.3 make test.nova` picks a release your license may download. The working copy, its `vendor/` and `composer.lock` are left untouched.
+
+GitHub Actions runs the same checks on every pull request. It checks the core's `main` out next to this repository and needs no Nova license; while the core repository is private, it needs an `AEGIS_CORE_TOKEN` secret (a token that can read it).

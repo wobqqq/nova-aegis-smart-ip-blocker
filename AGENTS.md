@@ -21,11 +21,12 @@ make code.check     # validate --strict, normalize --dry-run, composer audit, ph
 make test           # Pest
 make test.coverage  # Pest with coverage, failing below 90 %
 make ready          # all of the above
+make test.nova      # optional: the PHP suite on the real Nova (needs a license)
 ```
 
 `make ready` must pass. PHPStan runs at `level: max` with strict rules and **no baseline**: fix the type, never add an ignore. Advisories from `composer audit` are fixed by updating the package, never ignored.
 
-The container mounts the parent directory (`..:/work`) so that the Composer `path` repository `../nova-aegis` resolves while the core is not on Packagist: keep the core checked out next to this repository. Installing Nova needs a license: `auth.json` (gitignored and export-ignored) holds the credentials. Never read, print or commit it.
+The container mounts the parent directory (`..:/work`) so that the Composer `path` repository `../nova-aegis` resolves while the core is not on Packagist: keep the core checked out next to this repository. No Nova license is needed: `laravel/nova` resolves to the test double in `stubs/nova` (see *Tests*). `make test.nova` runs the PHP suite on the real Nova and is the only command that needs a license, read from `auth.json` (gitignored and export-ignored). Never read, print or commit it.
 
 ## How the code is laid out
 
@@ -42,6 +43,7 @@ The container mounts the parent directory (`..:/work`) so that the Composer `pat
 | `src/Console/` | `aegis:smart-ip-blocker:remove-ip` and `aegis:smart-ip-blocker:disable`, the recovery path. |
 | `resources/lang/en/smart-ip-blocker.php` | Every label and message, under `aegis-smart-ip-blocker::smart-ip-blocker.*`. |
 | `resources/views/blocked.blade.php` | The default page of a banned visitor, `aegis-smart-ip-blocker::blocked`. |
+| `stubs/nova/` | The Nova test double the suite and PHPStan run on, a copy of the core's (export-ignored). |
 
 ### How the module uses the core
 
@@ -89,7 +91,9 @@ php artisan aegis:smart-ip-blocker:disable                 # turn the module off
 
 ## Tests
 
-Pest 4 on Orchestra Testbench 10 with the real `laravel/nova` and the Aegis core from the path repository (SQLite in memory, array cache). No test reaches the network. Read the `package-testing` skill.
+Pest 4 on Orchestra Testbench 10 with the Aegis core from the path repository (SQLite in memory, array cache). No test reaches the network. Read the `package-testing` skill.
+
+`laravel/nova` is the test double in `stubs/nova`: a path repository (`"versions": {"laravel/nova": "5.99.0"}`, symlinked) declared in `composer.json`, so `make install`, CI and PHPStan need no license; the `require` stays `laravel/nova: ^5.0`, and applications get the real Nova because a dependency's repositories are ignored. It is a verbatim copy of the core's `stubs/nova`: change it in the core first (with the real Nova signature), then copy it here unchanged. Check a change that touches Nova with `make test.nova` when you have a license.
 
 ## Git workflow
 

@@ -13,7 +13,7 @@ metadata:
 
 # Nova development (this module)
 
-The module has no Nova tool, card or JavaScript of its own: the Aegis core draws everything from the module's PHP declarations. Check Nova's own source in `vendor/laravel/nova` and the core's in `vendor/wobqqq/nova-aegis` before relying on a behaviour.
+The module has no Nova tool, card or JavaScript of its own: the Aegis core draws everything from the module's PHP declarations. Check the core's source in `vendor/wobqqq/nova-aegis` before relying on a behaviour. `vendor/laravel/nova` here is the test double in `stubs/nova`, not Nova: check a version-specific API in a real Nova install, and add any Nova class or method you start using to the core's `stubs/nova` first (see `package-testing`).
 
 ## The pieces
 
