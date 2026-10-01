@@ -30,14 +30,29 @@
 
 ## 📥 Installation
 
+### 1. Install the package
+
 ```bash
 composer require wobqqq/nova-aegis-smart-ip-blocker
+```
+
+The service provider is discovered automatically.
+
+### 2. Run the migrations
+
+```bash
 php artisan migrate
 ```
 
-The service provider is discovered automatically; `migrate` creates the Aegis settings table if the core is new to the application (the module has no table of its own).
+This creates the Aegis settings table if the core is new to the application; the module adds no table of its own.
 
-Then open **Aegis → Settings → Smart IP Blocker** in Nova, check that your own IP is in **Excluded IPs**, set the limits and switch **Enable the Smart IP Blocker** on.
+### 3. Set up Aegis (once per application)
+
+If Aegis is new to the application, register its tool and define the `viewAegis` gate as the [Aegis README](https://github.com/wobqqq/nova-aegis#-installation) describes. Skip this step if you already use another Aegis module.
+
+### 4. Turn it on in Nova
+
+Open **Aegis → Settings → Smart IP Blocker** in Nova, check that your own address is in **Excluded IPs**, set the limits, switch **Enable the Smart IP Blocker** on and save.
 
 ## ⚙️ Configuration
 
