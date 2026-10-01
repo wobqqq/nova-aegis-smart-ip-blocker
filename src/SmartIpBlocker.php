@@ -12,12 +12,12 @@ use Wobqqq\AegisSmartIpBlocker\Support\IpRange;
 
 final class SmartIpBlocker
 {
-    public const WINDOW_SECONDS = 60;
+    public const int WINDOW_SECONDS = 60;
 
     /**
      * Part of every cache key: a release that changes what is cached bumps it.
      */
-    public const KEY_PREFIX = 'aegis.smart-ip-blocker.v1.';
+    public const string KEY_PREFIX = 'aegis.smart-ip-blocker.v1.';
 
     private ?SmartIpBlockerSettings $settings = null;
 

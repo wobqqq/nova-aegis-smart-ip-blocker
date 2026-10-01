@@ -8,41 +8,47 @@ use Closure;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
+use Override;
 use Wobqqq\Aegis\Checks\CheckResult;
 use Wobqqq\Aegis\Contracts\Module;
 use Wobqqq\Aegis\Settings\Field;
 use Wobqqq\AegisSmartIpBlocker\Rules\CoversCurrentIp;
 use Wobqqq\AegisSmartIpBlocker\Rules\IpOrSubnet;
 use Wobqqq\AegisSmartIpBlocker\Support\IpRange;
+use Wobqqq\AegisSmartIpBlocker\Support\Message;
 
 final readonly class SmartIpBlockerModule implements Module
 {
-    public const KEY = 'smart-ip-blocker';
+    public const string KEY = 'smart-ip-blocker';
 
     /**
      * The core's route that hands the settings form its values.
      */
-    private const SETTINGS_ROUTE = 'nova.aegis.settings';
+    private const string SETTINGS_ROUTE = 'nova.aegis.settings';
 
     public function __construct(private Container $container)
     {
     }
 
+    #[Override]
     public function key(): string
     {
         return self::KEY;
     }
 
+    #[Override]
     public function label(): string
     {
-        return (string)__('aegis-smart-ip-blocker::smart-ip-blocker.label');
+        return Message::get('aegis-smart-ip-blocker::smart-ip-blocker.label');
     }
 
+    #[Override]
     public function description(): string
     {
-        return (string)__('aegis-smart-ip-blocker::smart-ip-blocker.description');
+        return Message::get('aegis-smart-ip-blocker::smart-ip-blocker.description');
     }
 
+    #[Override]
     public function defaults(): array
     {
         return [
@@ -56,6 +62,7 @@ final readonly class SmartIpBlockerModule implements Module
         ];
     }
 
+    #[Override]
     public function rules(): array
     {
         return [
@@ -74,6 +81,10 @@ final readonly class SmartIpBlockerModule implements Module
         ];
     }
 
+    /**
+     * @return list<Field>
+     */
+    #[Override]
     public function fields(): array
     {
         return [
@@ -92,22 +103,23 @@ final readonly class SmartIpBlockerModule implements Module
         ];
     }
 
+    #[Override]
     public function status(array $values): CheckResult
     {
         $settings = SmartIpBlockerSettings::fromArray($values);
         $label = $this->label();
 
         return $settings->enabled
-            ? CheckResult::pass(self::KEY, $label, (string)__('aegis-smart-ip-blocker::smart-ip-blocker.on', [
+            ? CheckResult::pass(self::KEY, $label, Message::get('aegis-smart-ip-blocker::smart-ip-blocker.on', [
                 'requests' => $settings->requestsPerMinute,
                 'hours' => $settings->banHours,
             ]))
-            : CheckResult::warn(self::KEY, $label, (string)__('aegis-smart-ip-blocker::smart-ip-blocker.off'));
+            : CheckResult::warn(self::KEY, $label, Message::get('aegis-smart-ip-blocker::smart-ip-blocker.off'));
     }
 
     private function field(string $name): string
     {
-        return (string)__('aegis-smart-ip-blocker::smart-ip-blocker.fields.' . $name);
+        return Message::get('aegis-smart-ip-blocker::smart-ip-blocker.fields.' . $name);
     }
 
     /**
@@ -115,7 +127,7 @@ final readonly class SmartIpBlockerModule implements Module
      */
     private function help(string $name, array $replace = []): string
     {
-        return (string)__('aegis-smart-ip-blocker::smart-ip-blocker.help.' . $name, $replace);
+        return Message::get('aegis-smart-ip-blocker::smart-ip-blocker.help.' . $name, $replace);
     }
 
     /**
@@ -140,7 +152,7 @@ final readonly class SmartIpBlockerModule implements Module
     {
         return static function (string $attribute, mixed $value, Closure $fail): void {
             if (!is_string($value) || !View::exists($value)) {
-                $fail((string)__('aegis-smart-ip-blocker::smart-ip-blocker.validation.view'));
+                $fail(Message::get('aegis-smart-ip-blocker::smart-ip-blocker.validation.view'));
             }
         };
     }

@@ -8,8 +8,10 @@ use Closure;
 use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Http\Request;
+use Override;
 use Wobqqq\Aegis\Support\Values;
 use Wobqqq\AegisSmartIpBlocker\Support\IpRange;
+use Wobqqq\AegisSmartIpBlocker\Support\Message;
 use Wobqqq\AegisSmartIpBlocker\Support\Rows;
 
 /**
@@ -27,6 +29,7 @@ final class CoversCurrentIp implements DataAwareRule, ValidationRule
     /**
      * @param array<mixed> $data
      */
+    #[Override]
     public function setData(array $data): static
     {
         $this->data = $data;
@@ -34,6 +37,7 @@ final class CoversCurrentIp implements DataAwareRule, ValidationRule
         return $this;
     }
 
+    #[Override]
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         $ip = IpRange::normalize((string)$this->request->ip());
@@ -49,6 +53,6 @@ final class CoversCurrentIp implements DataAwareRule, ValidationRule
             }
         }
 
-        $fail((string)__('aegis-smart-ip-blocker::smart-ip-blocker.validation.current_ip', ['ip' => $ip]));
+        $fail(Message::get('aegis-smart-ip-blocker::smart-ip-blocker.validation.current_ip', ['ip' => $ip]));
     }
 }

@@ -20,7 +20,7 @@ function blockerValues(array $values = []): array
     return $values + ['enabled' => true, 'excluded_ips' => [['ip' => '127.0.0.1']]] + resolve(SmartIpBlockerModule::class)->defaults();
 }
 
-it('adds its section to the Aegis settings with the administrator\'s IP already excluded', function (): void {
+it("adds its section to the Aegis settings with the administrator's IP already excluded", function (): void {
     $response = actingAs(admin())->getJson('/nova-vendor/aegis/settings')->assertOk();
 
     /** @var list<array<string, mixed>> $sections */
@@ -35,11 +35,11 @@ it('adds its section to the Aegis settings with the administrator\'s IP already 
 });
 
 it('keeps the preset out of the values every other request reads', function (): void {
-    expect(Aegis::settings(SmartIpBlockerModule::KEY)['excluded_ips'])->toBe([])
+    expect(Aegis::settings(SmartIpBlockerModule::KEY)['excluded_ips'] ?? null)->toBe([])
         ->and(resolve(SmartIpBlocker::class)->settings()->excludedIps)->toBe([]);
 });
 
-it('refuses to turn the blocker on unless the administrator\'s own IP is excluded', function (): void {
+it("refuses to turn the blocker on unless the administrator's own IP is excluded", function (): void {
     actingAs($admin = admin())->putJson('/nova-vendor/aegis/settings/smart-ip-blocker', ['values' => blockerValues(['excluded_ips' => [['ip' => '198.51.100.10']]])])
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['excluded_ips' => 'Add your own IP address, 127.0.0.1']);
@@ -86,7 +86,7 @@ it('refuses invalid values', function (string $field, mixed $value): void {
 it('keeps only the columns it knows in the stored rows', function (): void {
     $saved = configureBlocker(['excluded_ips' => [['ip' => '10.0.0.1', 'note' => '<b>x</b>']]]);
 
-    expect($saved['excluded_ips'])->toBe([['ip' => '10.0.0.1']]);
+    expect($saved['excluded_ips'] ?? null)->toBe([['ip' => '10.0.0.1']]);
 });
 
 it('reads stored values the rules would refuse with safe fallbacks', function (): void {

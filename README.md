@@ -3,7 +3,7 @@
 [![CI](https://github.com/wobqqq/nova-aegis-smart-ip-blocker/actions/workflows/ci.yml/badge.svg)](https://github.com/wobqqq/nova-aegis-smart-ip-blocker/actions/workflows/ci.yml)
 [![Packagist](https://img.shields.io/packagist/v/wobqqq/nova-aegis-smart-ip-blocker)](https://packagist.org/packages/wobqqq/nova-aegis-smart-ip-blocker)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/wobqqq/nova-aegis-smart-ip-blocker/blob/main/LICENSE.md)
-[![PHP](https://img.shields.io/badge/PHP-8.2%2B-777bb4)](https://github.com/wobqqq/nova-aegis-smart-ip-blocker/blob/main/composer.json)
+[![PHP](https://img.shields.io/badge/PHP-8.4%2B-777bb4)](https://github.com/wobqqq/nova-aegis-smart-ip-blocker/blob/main/composer.json)
 [![PHPStan](https://img.shields.io/badge/PHPStan-level%20max-brightgreen)](https://github.com/wobqqq/nova-aegis-smart-ip-blocker/blob/main/phpstan.neon.dist)
 
 **Smart IP Blocker** is a module of [Aegis](https://github.com/wobqqq/nova-aegis), the security suite for Laravel Nova. It counts the requests of every IP address per minute and bans an IP that sends more than you allow, on the site and in Nova, to slow down brute-force attempts, scrapers and request floods.
@@ -22,8 +22,8 @@
 
 ## 📦 Requirements
 
-- PHP 8.2 or higher
-- Laravel 12
+- PHP 8.4 or higher
+- Laravel 12 or 13
 - Laravel Nova 5
 - [Aegis](https://github.com/wobqqq/nova-aegis) 1.1 or higher (installed with the module)
 - A cache store shared by every server (Redis, Memcached, database; `file` on a single server)
