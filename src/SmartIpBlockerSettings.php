@@ -10,11 +10,11 @@ use Wobqqq\AegisSmartIpBlocker\Support\Rows;
 
 final readonly class SmartIpBlockerSettings
 {
-    public const DEFAULT_VIEW = 'aegis-smart-ip-blocker::blocked';
+    public const string DEFAULT_VIEW = 'aegis-smart-ip-blocker::blocked';
 
-    public const VIEW_PATTERN = '/^(?:[A-Za-z0-9_-]+::)?[A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)*$/';
+    public const string VIEW_PATTERN = '/^(?:[A-Za-z0-9_-]+::)?[A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)*$/';
 
-    public const HEADER_PATTERN = '/^[A-Za-z0-9-]{1,50}$/';
+    public const string HEADER_PATTERN = '/^[A-Za-z0-9-]{1,50}$/';
 
     /**
      * @param array<string, true> $excludedIps canonical address => true

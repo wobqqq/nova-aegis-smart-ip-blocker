@@ -2,7 +2,10 @@
 
 declare(strict_types=1);
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Testing\TestResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Wobqqq\Aegis\Aegis;
 use Wobqqq\AegisSmartIpBlocker\SmartIpBlockerModule;
 use Wobqqq\AegisSmartIpBlocker\Tests\Fixtures\User;
@@ -29,7 +32,7 @@ function editor(): User
  */
 function configureBlocker(array $values): array
 {
-    app()->instance('request', Illuminate\Http\Request::create('/'));
+    app()->instance('request', Request::create('/'));
 
     return Aegis::save(
         SmartIpBlockerModule::KEY,
@@ -52,9 +55,9 @@ function storeRawBlockerSettings(array $values): void
 /**
  * @param array<string, string> $headers
  *
- * @return Illuminate\Testing\TestResponse<Symfony\Component\HttpFoundation\Response>
+ * @return TestResponse<Response>
  */
-function requestFrom(string $ip, string $uri = '/page', array $headers = []): Illuminate\Testing\TestResponse
+function requestFrom(string $ip, string $uri = '/page', array $headers = []): TestResponse
 {
     return Pest\Laravel\withServerVariables(['REMOTE_ADDR' => $ip])->get($uri, $headers);
 }

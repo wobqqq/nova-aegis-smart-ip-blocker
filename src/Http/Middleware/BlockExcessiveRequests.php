@@ -13,13 +13,14 @@ use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 use Wobqqq\AegisSmartIpBlocker\SmartIpBlocker;
 use Wobqqq\AegisSmartIpBlocker\SmartIpBlockerSettings;
+use Wobqqq\AegisSmartIpBlocker\Support\Message;
 
 final readonly class BlockExcessiveRequests
 {
     /**
      * Marks a request already counted, as it may pass both the web and a Nova group.
      */
-    private const COUNTED = 'aegis.smart-ip-blocker.counted';
+    private const string COUNTED = 'aegis.smart-ip-blocker.counted';
 
     public function __construct(private SmartIpBlocker $blocker, private ViewFactory $views)
     {
@@ -38,8 +39,8 @@ final readonly class BlockExcessiveRequests
 
         try {
             $retryAfter = $this->blocker->hit($request);
-        } catch (Throwable $e) {
-            report($e);
+        } catch (Throwable $throwable) {
+            report($throwable);
             $retryAfter = null;
         }
 
@@ -49,7 +50,7 @@ final readonly class BlockExcessiveRequests
     private function tooManyRequests(Request $request, int $retryAfter): Response
     {
         $headers = ['Retry-After' => (string)max(1, $retryAfter)];
-        $message = (string)__('aegis-smart-ip-blocker::smart-ip-blocker.blocked.message');
+        $message = Message::get('aegis-smart-ip-blocker::smart-ip-blocker.blocked.message');
 
         if ($request->expectsJson()) {
             return new JsonResponse(['message' => $message], Response::HTTP_TOO_MANY_REQUESTS, $headers);

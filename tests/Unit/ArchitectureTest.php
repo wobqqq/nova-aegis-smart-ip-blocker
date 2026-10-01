@@ -1,6 +1,14 @@
 <?php
 
 declare(strict_types=1);
+use Illuminate\Support\Facades\Http;
+use Wobqqq\Aegis\AegisServiceProvider;
+use Wobqqq\Aegis\Checks\CheckRegistry;
+use Wobqqq\Aegis\Checks\CheckRunner;
+use Wobqqq\Aegis\Settings\AegisSetting;
+use Wobqqq\Aegis\Settings\SettingsRepository;
+use Wobqqq\AegisSmartIpBlocker\SmartIpBlockerSettings;
+use Wobqqq\AegisSmartIpBlocker\Support\IpRange;
 
 arch('every file declares strict types')
     ->expect('Wobqqq\AegisSmartIpBlocker')
@@ -16,25 +24,25 @@ arch('classes are final')
     ->toBeFinal();
 
 arch('value objects are immutable')
-    ->expect([Wobqqq\AegisSmartIpBlocker\SmartIpBlockerSettings::class, Wobqqq\AegisSmartIpBlocker\Support\IpRange::class])
+    ->expect([SmartIpBlockerSettings::class, IpRange::class])
     ->toBeReadonly();
 
 arch('the module reaches the core through its public contract only')
     ->expect('Wobqqq\AegisSmartIpBlocker')
     ->not->toUse([
-        Wobqqq\Aegis\AegisServiceProvider::class,
+        AegisServiceProvider::class,
         'Wobqqq\Aegis\Audit',
-        Wobqqq\Aegis\Checks\CheckRegistry::class,
-        Wobqqq\Aegis\Checks\CheckRunner::class,
+        CheckRegistry::class,
+        CheckRunner::class,
         'Wobqqq\Aegis\Hardening',
         'Wobqqq\Aegis\Http',
         'Wobqqq\Aegis\Modules',
         'Wobqqq\Aegis\Nova',
         'Wobqqq\Aegis\Scanners',
-        Wobqqq\Aegis\Settings\AegisSetting::class,
-        Wobqqq\Aegis\Settings\SettingsRepository::class,
+        AegisSetting::class,
+        SettingsRepository::class,
     ]);
 
 arch('nothing opens a network connection')
     ->expect('Wobqqq\AegisSmartIpBlocker')
-    ->not->toUse(['stream_socket_client', 'fsockopen', 'curl_init', 'file_get_contents', Illuminate\Support\Facades\Http::class]);
+    ->not->toUse(['stream_socket_client', 'fsockopen', 'curl_init', 'file_get_contents', Http::class]);

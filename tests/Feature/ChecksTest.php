@@ -2,20 +2,22 @@
 
 declare(strict_types=1);
 
+use Wobqqq\Aegis\Checks\CheckResult;
 use Wobqqq\Aegis\Checks\CheckRunner;
+use Wobqqq\Aegis\Contracts\Check;
 use Wobqqq\Aegis\Enums\Status;
 use Wobqqq\AegisSmartIpBlocker\Checks\CacheStoreCheck;
 use Wobqqq\AegisSmartIpBlocker\Checks\ExcludedHeadersCheck;
 
-function check(string $class): Wobqqq\Aegis\Checks\CheckResult
+function check(string $class): CheckResult
 {
     $check = resolve($class);
 
-    return $check instanceof Wobqqq\Aegis\Contracts\Check ? $check->run() : throw new UnexpectedValueException($class);
+    return $check instanceof Check ? $check->run() : throw new UnexpectedValueException($class);
 }
 
 it('registers its checks with Aegis', function (): void {
-    $keys = array_map(static fn (Wobqqq\Aegis\Checks\CheckResult $result): string => $result->key, resolve(CheckRunner::class)->checks());
+    $keys = array_map(static fn (CheckResult $result): string => $result->key, resolve(CheckRunner::class)->checks());
 
     expect($keys)->toContain('smart-ip-blocker-cache', 'smart-ip-blocker-headers');
 });

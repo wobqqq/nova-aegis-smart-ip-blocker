@@ -3,8 +3,12 @@
 declare(strict_types=1);
 
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\View;
+use Mockery\MockInterface;
+use Wobqqq\AegisSmartIpBlocker\Http\Middleware\BlockExcessiveRequests;
 use Wobqqq\AegisSmartIpBlocker\SmartIpBlocker;
 
 use function Pest\Laravel\getJson;
@@ -142,7 +146,7 @@ it('keeps the application working when the cache fails', function (): void {
     Exceptions::fake();
     configureBlocker(['requests_per_minute' => 1]);
 
-    /** @var CacheRepository&Mockery\MockInterface $cache */
+    /** @var CacheRepository&MockInterface $cache */
     $cache = Mockery::mock(CacheRepository::class);
     $cache->allows('get')->andThrow(new RuntimeException('cache down'));
     app()->instance(SmartIpBlocker::class, new SmartIpBlocker($cache));
@@ -155,7 +159,7 @@ it('keeps the application working when the cache fails', function (): void {
 it('gives a counter that expired between two calls its window back', function (): void {
     configureBlocker(['requests_per_minute' => 5]);
 
-    /** @var CacheRepository&Mockery\MockInterface $cache */
+    /** @var CacheRepository&MockInterface $cache */
     $cache = Mockery::mock(CacheRepository::class);
     $cache->allows('get')->andReturnNull();
     $cache->allows('add')->andReturnFalse();
@@ -214,9 +218,9 @@ it('ignores a request without a usable IP', function (): void {
 it('counts a request once when the middleware runs twice on it', function (): void {
     configureBlocker(['requests_per_minute' => 1]);
 
-    $middleware = resolve(Wobqqq\AegisSmartIpBlocker\Http\Middleware\BlockExcessiveRequests::class);
-    $request = Illuminate\Http\Request::create('/page', 'GET', server: ['REMOTE_ADDR' => '203.0.113.7']);
-    $next = static fn (): Illuminate\Http\Response => new Illuminate\Http\Response('page body');
+    $middleware = resolve(BlockExcessiveRequests::class);
+    $request = Request::create('/page', 'GET', server: ['REMOTE_ADDR' => '203.0.113.7']);
+    $next = static fn (): Response => new Response('page body');
 
     expect($middleware->handle($request, $next)->getStatusCode())->toBe(200)
         ->and($middleware->handle($request, $next)->getStatusCode())->toBe(200);

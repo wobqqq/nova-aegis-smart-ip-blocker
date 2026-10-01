@@ -54,5 +54,5 @@ it('turns itself off even when the stored settings are broken', function (): voi
 
     expect(Artisan::call('aegis:smart-ip-blocker:disable'))->toBe(0)
         ->and(Artisan::output())->toContain('reset to the defaults')
-        ->and(Aegis::settings(SmartIpBlockerModule::KEY)['enabled'])->toBeFalse();
+        ->and(Aegis::settings(SmartIpBlockerModule::KEY)['enabled'] ?? null)->toBeFalse();
 });

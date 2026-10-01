@@ -9,6 +9,7 @@ use Illuminate\Contracts\Config\Repository as Config;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
+use Override;
 use Wobqqq\Aegis\Aegis;
 use Wobqqq\Aegis\Events\SettingsSaved;
 use Wobqqq\AegisSmartIpBlocker\Checks\CacheStoreCheck;
@@ -22,8 +23,9 @@ final class SmartIpBlockerServiceProvider extends ServiceProvider
     /**
      * The site and every Nova route: Nova's groups usually include web, but an application may drop it.
      */
-    private const MIDDLEWARE_GROUPS = ['web', 'nova', 'nova:auth'];
+    private const array MIDDLEWARE_GROUPS = ['web', 'nova', 'nova:auth'];
 
+    #[Override]
     public function register(): void
     {
         $this->app->singleton(SmartIpBlocker::class, static function (Application $app): SmartIpBlocker {
