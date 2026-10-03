@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace Wobqqq\AegisSmartIpBlocker;
 
 use Illuminate\Contracts\Cache\Repository as Cache;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Date;
+use Psr\Clock\ClockInterface;
 use Wobqqq\Aegis\Aegis;
 use Wobqqq\AegisSmartIpBlocker\Support\IpRange;
 
@@ -21,7 +20,7 @@ final class SmartIpBlocker
 
     private ?SmartIpBlockerSettings $settings = null;
 
-    public function __construct(private readonly Cache $cache)
+    public function __construct(private readonly Cache $cache, private readonly ClockInterface $clock)
     {
     }
 
@@ -38,16 +37,16 @@ final class SmartIpBlocker
     /**
      * Counts the request and answers the seconds its IP has to wait, or null when it may pass.
      */
-    public function hit(Request $request): ?int
+    public function hit(Visit $visit): ?int
     {
         $settings = $this->settings();
-        $ip = IpRange::normalize((string)$request->ip());
+        $ip = IpRange::normalize((string)$visit->ip);
 
-        if (!$settings->enabled || $ip === null || $this->isExcluded($settings, $ip, $request)) {
+        if (!$settings->enabled || $ip === null || $this->isExcluded($settings, $ip, $visit)) {
             return null;
         }
 
-        $now = Date::now()->getTimestamp();
+        $now = $this->clock->now()->getTimestamp();
         $bannedUntil = $this->cache->get($this->banKey($ip));
 
         if (is_int($bannedUntil) && $bannedUntil > $now) {
@@ -83,7 +82,7 @@ final class SmartIpBlocker
         $ip = IpRange::normalize($ip);
         $bannedUntil = $ip === null ? null : $this->cache->get($this->banKey($ip));
 
-        return is_int($bannedUntil) && $bannedUntil > Date::now()->getTimestamp();
+        return is_int($bannedUntil) && $bannedUntil > $this->clock->now()->getTimestamp();
     }
 
     public function removeIp(string $ip): void
@@ -109,7 +108,7 @@ final class SmartIpBlocker
     public function tracked(): array
     {
         $tracked = $this->cache->get($this->trackedKey());
-        $since = Date::now()->getTimestamp() - self::WINDOW_SECONDS;
+        $since = $this->clock->now()->getTimestamp() - self::WINDOW_SECONDS;
         $result = [];
 
         foreach (is_array($tracked) ? $tracked : [] as $ip => $startedAt) {
@@ -121,7 +120,7 @@ final class SmartIpBlocker
         return $result;
     }
 
-    private function isExcluded(SmartIpBlockerSettings $settings, string $ip, Request $request): bool
+    private function isExcluded(SmartIpBlockerSettings $settings, string $ip, Visit $visit): bool
     {
         if (isset($settings->excludedIps[$ip])) {
             return true;
@@ -134,7 +133,7 @@ final class SmartIpBlocker
         }
 
         foreach ($settings->excludedHeaders as $header => $needles) {
-            foreach ($request->headers->all($header) as $value) {
+            foreach ($visit->header($header) as $value) {
                 $value = mb_strtolower((string)$value);
 
                 foreach ($needles as $needle) {
