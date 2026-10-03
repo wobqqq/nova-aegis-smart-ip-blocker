@@ -14,6 +14,7 @@ use Throwable;
 use Wobqqq\AegisSmartIpBlocker\SmartIpBlocker;
 use Wobqqq\AegisSmartIpBlocker\SmartIpBlockerSettings;
 use Wobqqq\AegisSmartIpBlocker\Support\Message;
+use Wobqqq\AegisSmartIpBlocker\Visit;
 
 final readonly class BlockExcessiveRequests
 {
@@ -38,13 +39,24 @@ final readonly class BlockExcessiveRequests
         $request->attributes->set(self::COUNTED, true);
 
         try {
-            $retryAfter = $this->blocker->hit($request);
+            $retryAfter = $this->blocker->hit($this->visit($request));
         } catch (Throwable $throwable) {
             report($throwable);
             $retryAfter = null;
         }
 
         return $retryAfter === null ? $next($request) : $this->tooManyRequests($request, $retryAfter);
+    }
+
+    private function visit(Request $request): Visit
+    {
+        $headers = [];
+
+        foreach ($request->headers->all() as $name => $values) {
+            $headers[strtolower((string)$name)] = array_values($values);
+        }
+
+        return new Visit($request->ip(), $headers);
     }
 
     private function tooManyRequests(Request $request, int $retryAfter): Response

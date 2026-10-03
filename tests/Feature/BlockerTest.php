@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\View;
 use Mockery\MockInterface;
 use Wobqqq\AegisSmartIpBlocker\Http\Middleware\BlockExcessiveRequests;
 use Wobqqq\AegisSmartIpBlocker\SmartIpBlocker;
+use Wobqqq\AegisSmartIpBlocker\Support\SystemClock;
 
 use function Pest\Laravel\getJson;
 use function Pest\Laravel\travel;
@@ -149,7 +150,7 @@ it('keeps the application working when the cache fails', function (): void {
     /** @var CacheRepository&MockInterface $cache */
     $cache = Mockery::mock(CacheRepository::class);
     $cache->allows('get')->andThrow(new RuntimeException('cache down'));
-    app()->instance(SmartIpBlocker::class, new SmartIpBlocker($cache));
+    app()->instance(SmartIpBlocker::class, new SmartIpBlocker($cache, new SystemClock()));
 
     expect(statuses('203.0.113.7', 3))->toBe([200, 200, 200]);
 
@@ -165,7 +166,7 @@ it('gives a counter that expired between two calls its window back', function ()
     $cache->allows('add')->andReturnFalse();
     $cache->allows('increment')->andReturn(1);
     $cache->expects('put')->with(SmartIpBlocker::KEY_PREFIX . 'rate.203.0.113.7', 1, SmartIpBlocker::WINDOW_SECONDS);
-    app()->instance(SmartIpBlocker::class, new SmartIpBlocker($cache));
+    app()->instance(SmartIpBlocker::class, new SmartIpBlocker($cache, new SystemClock()));
 
     requestFrom('203.0.113.7')->assertOk();
 });

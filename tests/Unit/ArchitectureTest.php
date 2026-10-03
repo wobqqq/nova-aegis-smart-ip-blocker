@@ -1,12 +1,16 @@
 <?php
 
 declare(strict_types=1);
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Http;
 use Wobqqq\Aegis\AegisServiceProvider;
 use Wobqqq\Aegis\Checks\CheckRegistry;
 use Wobqqq\Aegis\Checks\CheckRunner;
 use Wobqqq\Aegis\Settings\AegisSetting;
 use Wobqqq\Aegis\Settings\SettingsRepository;
+use Wobqqq\AegisSmartIpBlocker\SmartIpBlocker;
 use Wobqqq\AegisSmartIpBlocker\SmartIpBlockerSettings;
 use Wobqqq\AegisSmartIpBlocker\Support\IpRange;
 
@@ -46,3 +50,7 @@ arch('the module reaches the core through its public contract only')
 arch('nothing opens a network connection')
     ->expect('Wobqqq\AegisSmartIpBlocker')
     ->not->toUse(['stream_socket_client', 'fsockopen', 'curl_init', 'file_get_contents', Http::class]);
+
+arch('the blocker reads requests and time only through what it is given')
+    ->expect([SmartIpBlocker::class, 'Wobqqq\AegisSmartIpBlocker\Actions'])
+    ->not->toUse([Request::class, Date::class, 'now']);

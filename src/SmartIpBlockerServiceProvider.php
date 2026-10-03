@@ -10,6 +10,7 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
 use Override;
+use Psr\Clock\ClockInterface;
 use Wobqqq\Aegis\Aegis;
 use Wobqqq\Aegis\Events\SettingsSaved;
 use Wobqqq\AegisSmartIpBlocker\Checks\CacheStoreCheck;
@@ -17,6 +18,7 @@ use Wobqqq\AegisSmartIpBlocker\Checks\ExcludedHeadersCheck;
 use Wobqqq\AegisSmartIpBlocker\Console\DisableCommand;
 use Wobqqq\AegisSmartIpBlocker\Console\RemoveIpCommand;
 use Wobqqq\AegisSmartIpBlocker\Http\Middleware\BlockExcessiveRequests;
+use Wobqqq\AegisSmartIpBlocker\Support\SystemClock;
 
 final class SmartIpBlockerServiceProvider extends ServiceProvider
 {
@@ -28,10 +30,14 @@ final class SmartIpBlockerServiceProvider extends ServiceProvider
     #[Override]
     public function register(): void
     {
+        $this->app->bindIf(ClockInterface::class, SystemClock::class);
         $this->app->singleton(SmartIpBlocker::class, static function (Application $app): SmartIpBlocker {
             $store = $app->make(Config::class)->get('aegis.cache_store');
 
-            return new SmartIpBlocker($app->make(CacheFactory::class)->store(is_string($store) && $store !== '' ? $store : null));
+            return new SmartIpBlocker(
+                $app->make(CacheFactory::class)->store(is_string($store) && $store !== '' ? $store : null),
+                $app->make(ClockInterface::class),
+            );
         });
     }
 
