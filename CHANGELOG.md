@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+### Changed
+
+- Internal refactoring along the architecture skills, no change for applications: the blocker takes a `Visit` instead of the request and reads the time from a PSR clock, and the disable command calls `DisableSmartIpBlocker`.
+
 ## [1.1.0] - 2026-10-01
 
 ### Added

@@ -35,12 +35,14 @@ The container mounts the parent directory (`..:/work`) so that the Composer `pat
 | `src/SmartIpBlockerServiceProvider.php` | Wiring only: the `SmartIpBlocker` singleton on the Aegis cache store, the module and its checks, the `SettingsSaved` listener, the middleware in the `web`, `nova` and `nova:auth` groups, the commands. |
 | `src/SmartIpBlockerModule.php` | The `smart-ip-blocker` section: defaults (with the administrator's IP preset), rules, fields, the overview line. |
 | `src/SmartIpBlockerSettings.php` | The typed, re-validated settings (`final readonly`), built from `Aegis::settings()`. |
-| `src/SmartIpBlocker.php` | The rate limit: exclusions, the per-minute counter, the ban, the bounded list of tracked IPs, `removeIp()`. |
+| `src/SmartIpBlocker.php` | The rate limit: exclusions, the per-minute counter, the ban, the bounded list of tracked IPs, `removeIp()`. It takes a `Visit` (address and headers) and reads the time from the injected clock. |
+| `src/Visit.php` | What the blocker needs of a request, built by the middleware. |
+| `src/Actions/` | `DisableSmartIpBlocker`, the work of the disable command. |
 | `src/Http/Middleware/BlockExcessiveRequests.php` | Runs the count once per request and answers 429 (HTML view or JSON). |
 | `src/Rules/` | `IpOrSubnet` (one row of the excluded IPs) and `CoversCurrentIp` (the lock-out protection). |
-| `src/Support/` | `IpRange` (IP and CIDR matching on the binary form) and `Rows` (typed reads of the rows of a stored table setting). |
+| `src/Support/` | `IpRange` (IP and CIDR matching on the binary form), `Rows` (typed reads of the rows of a stored table setting) and `SystemClock` (the clock bound when the application has none). |
 | `src/Checks/` | `CacheStoreCheck` (a cache that keeps counts between requests) and `ExcludedHeadersCheck` (spoofable exclusions). |
-| `src/Console/` | `aegis:smart-ip-blocker:remove-ip` and `aegis:smart-ip-blocker:disable`, the recovery path. |
+| `src/Console/` | `aegis:smart-ip-blocker:remove-ip` and `aegis:smart-ip-blocker:disable`, the recovery path: they parse the input and call the blocker or the action. |
 | `resources/lang/en/smart-ip-blocker.php` | Every label and message, under `aegis-smart-ip-blocker::smart-ip-blocker.*`. |
 | `resources/views/blocked.blade.php` | The default page of a banned visitor, `aegis-smart-ip-blocker::blocked`. |
 | `stubs/nova/` | The Nova test double the suite and PHPStan run on, a copy of the core's (export-ignored). |
@@ -57,6 +59,20 @@ The core and the module are separate packages that applications update independe
 The `ArchitectureTest` refuses any other core class. A newer core API is used only behind `method_exists()` / `class_exists()` with a fallback, so the module keeps working on every released core of the same major.
 
 The settings memo in `SmartIpBlocker` is cleared on `SettingsSaved` for the `smart-ip-blocker` section, so a save applies at once.
+
+## Architecture
+
+The architecture skills in `.claude/skills/` are the rules for how code is shaped; read the one that matches the change before writing it:
+
+- `application-layer`: entry points (middleware, controllers, console commands, the module's Nova pieces) only translate input and output; the work sits in classes named after what they do, with typed input.
+- `dependency-injection`: collaborators and configuration arrive through the constructor; facades stay in entry points; interfaces only at I/O boundaries (HTTP, sockets, the clock, processes).
+- `error-handling`, `validation`: failures are typed exceptions, never `null` or `false`; input shape is validated at the entry point, business rules where the work is done.
+- `events`: reactions run after the commit, from events that say what happened.
+- `testing-architecture`: unit tests for pure logic, feature tests for use cases, fakes only at boundaries.
+- `domain-layer-cqrs`: when (rarely) a separate domain layer or read side pays off.
+- `package-boundaries`: what is public API here and how it may change.
+
+In this module: the middleware maps the request to a `Visit` and asks `SmartIpBlocker` for a decision; the blocker never sees `Request` and reads time only from `Psr\Clock\ClockInterface` (an architecture test keeps it so); the recovery commands parse their input and call the blocker or `Actions\DisableSmartIpBlocker`.
 
 ## Upgrading installed applications safely
 
