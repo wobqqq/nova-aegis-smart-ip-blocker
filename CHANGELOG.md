@@ -4,6 +4,8 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10-03
+
 ### Changed
 
 - Internal refactoring along the architecture skills, no change for applications: the blocker takes a `Visit` instead of the request and reads the time from a PSR clock, and the disable command calls `DisableSmartIpBlocker`.
@@ -42,7 +44,8 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 - `aegis:smart-ip-blocker:remove-ip` and `aegis:smart-ip-blocker:disable` console commands.
 - Requires Aegis 1.1 or later.
 
-[Unreleased]: https://github.com/wobqqq/nova-aegis-smart-ip-blocker/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/wobqqq/nova-aegis-smart-ip-blocker/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/wobqqq/nova-aegis-smart-ip-blocker/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/wobqqq/nova-aegis-smart-ip-blocker/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/wobqqq/nova-aegis-smart-ip-blocker/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/wobqqq/nova-aegis-smart-ip-blocker/releases/tag/v1.0.0
